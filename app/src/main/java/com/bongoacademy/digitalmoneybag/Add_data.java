@@ -1,6 +1,7 @@
 package com.bongoacademy.digitalmoneybag;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -36,7 +37,6 @@ public class Add_data extends AppCompatActivity {
         });
 
 
-
         add_amount = findViewById(R.id.add_amount);
         add_reason = findViewById(R.id.add_reason);
         submit = findViewById(R.id.submit);
@@ -44,72 +44,87 @@ public class Add_data extends AppCompatActivity {
 
         sqlHelperClass = new SqlHelperClass(this);
 
-
-        if (Expense == true) {
-
+        // Set initial title based on the Expense flag
+        if (Expense) {
             tvtitle.setText("Add Expense");
-        }
-        else {
+        } else {
             tvtitle.setText("Add Income");
         }
 
-
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                tvtitle.setText("");
-
-                String samount = add_amount.getText().toString();
-                String reason = add_reason.getText().toString();
-
-                // Validate the amount
-                if (TextUtils.isEmpty(samount)) {
-                    Toast.makeText(Add_data.this, "Amount is required!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Double amount;
-
-                try {
-                    amount = Double.parseDouble(samount);
-                    if (amount <= 0) {
-                        throw new NumberFormatException("Amount must be greater than zero");
-                    }
-                } catch (NumberFormatException e) {
-                    Toast.makeText(Add_data.this, "Please enter a valid amount!", Toast.LENGTH_SHORT).show();
-                    add_amount.setText("");
-                    return;
-                }
-
-                // Validate the reason
-                if (TextUtils.isEmpty(reason)) {
-                    Toast.makeText(Add_data.this, "Reason is required!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-
-
-                if (Expense == true) {
-                    tvtitle.setText("");
-                    sqlHelperClass.add_expense(amount, reason);
-
-                    tvtitle.setText("Expense Added!!");
-                    add_amount.setText("");
-                    add_reason.setText("");
+        // Listener to reset title when user focuses on EditText
+        add_amount.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                // Reset title when user focuses on EditText to add new data
+                if (Expense) {
                     tvtitle.setText("Add Expense");
-
                 } else {
-                    tvtitle.setText("");
-                    sqlHelperClass.add_income(amount, reason);
-                    tvtitle.setText("Income Added!!");
-                    add_amount.setText("");
-                    add_reason.setText("");
                     tvtitle.setText("Add Income");
                 }
             }
         });
 
+        add_reason.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                // Reset title when user focuses on EditText to add new data
+                if (Expense) {
+                    tvtitle.setText("Add Expense");
+                } else {
+                    tvtitle.setText("Add Income");
+                }
+            }
+        });
+
+        submit.setOnClickListener(v -> {
+            String samount = add_amount.getText().toString();
+            String reason = add_reason.getText().toString();
+
+            // Validate the amount
+            if (TextUtils.isEmpty(samount)) {
+                Toast.makeText(Add_data.this, "Amount is required!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Double amount;
+
+            try {
+                amount = Double.parseDouble(samount);
+                if (amount <= 0) {
+                    throw new NumberFormatException("Amount must be greater than zero");
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(Add_data.this, "Please enter a valid amount!", Toast.LENGTH_SHORT).show();
+                add_amount.setText("");
+                return;
+            }
+
+            // Validate the reason
+            if (TextUtils.isEmpty(reason)) {
+                Toast.makeText(Add_data.this, "Reason is required!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Perform add operation
+            if (Expense) {
+                sqlHelperClass.add_expense(amount, reason);
+                tvtitle.setText("Expense Added!!");
+                add_amount.setText("");
+                add_reason.setText("");
+            } else {
+                sqlHelperClass.add_income(amount, reason);
+                tvtitle.setText("Income Added!!");
+                add_amount.setText("");
+                add_reason.setText("");
+            }
+
+            // Reset title to "Add Expense" or "Add Income" after the submit operation
+            new Handler().postDelayed(() -> {
+                if (Expense) {
+                    tvtitle.setText("Add Expense");
+                } else {
+                    tvtitle.setText("Add Income");
+                }
+            }, 1500);  // Delay to keep the success message visible for a short time
+        });
     }
 
     @Override
