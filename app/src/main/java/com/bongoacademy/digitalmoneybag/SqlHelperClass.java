@@ -16,7 +16,7 @@ public class SqlHelperClass extends SQLiteOpenHelper {
 
     // ✅ Step 1: Updated database version to 2 for schema change
     public SqlHelperClass(@Nullable Context context) {
-        super(context, "db_cost", null, 3);  // ← Updated version to 2
+        super(context, "db_cost", null, 5);  // ← Updated version
     }
 
     @Override

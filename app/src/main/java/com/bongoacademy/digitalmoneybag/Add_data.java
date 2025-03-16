@@ -95,11 +95,17 @@ public class Add_data extends AppCompatActivity {
                     sqlHelperClass.add_expense(amount, reason);
 
                     tvtitle.setText("Expense Added!!");
+                    add_amount.setText("");
+                    add_reason.setText("");
+                    tvtitle.setText("Add Expense");
 
                 } else {
                     tvtitle.setText("");
                     sqlHelperClass.add_income(amount, reason);
                     tvtitle.setText("Income Added!!");
+                    add_amount.setText("");
+                    add_reason.setText("");
+                    tvtitle.setText("Add Income");
                 }
             }
         });
