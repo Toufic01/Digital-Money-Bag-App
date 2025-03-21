@@ -24,6 +24,8 @@ public class Add_data extends AppCompatActivity {
     SqlHelperClass sqlHelperClass;
 
     public static boolean Expense = true;
+    public static boolean asset = true;
+    public static boolean debt = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,20 +47,28 @@ public class Add_data extends AppCompatActivity {
         sqlHelperClass = new SqlHelperClass(this);
 
         // Set initial title based on the Expense flag
-        if (Expense) {
+        if (Expense == true && asset == false && debt == false) {
             tvtitle.setText("Add Expense");
-        } else {
+        } else if (Expense==false && asset == false && debt == false){
             tvtitle.setText("Add Income");
+        } else if (asset == true && debt == false){
+            tvtitle.setText("Add Asset");
+        } else if (asset == false && debt == true){
+            tvtitle.setText("Add Debt");
         }
 
         // Listener to reset title when user focuses on EditText
         add_amount.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 // Reset title when user focuses on EditText to add new data
-                if (Expense) {
+                if (Expense == true && asset == false && debt == false) {
                     tvtitle.setText("Add Expense");
-                } else {
+                } else if (Expense==false && asset == false && debt == false){
                     tvtitle.setText("Add Income");
+                } else if (asset == true && debt == false){
+                    tvtitle.setText("Add Asset");
+                } else if (asset == false && debt == true){
+                    tvtitle.setText("Add Debt");
                 }
             }
         });
@@ -66,10 +76,14 @@ public class Add_data extends AppCompatActivity {
         add_reason.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 // Reset title when user focuses on EditText to add new data
-                if (Expense) {
+                if (Expense == true && asset == false && debt == false) {
                     tvtitle.setText("Add Expense");
-                } else {
+                } else if (Expense==false && asset == false && debt == false){
                     tvtitle.setText("Add Income");
+                } else if (asset == true && debt == false){
+                    tvtitle.setText("Add Asset");
+                } else if (asset == false && debt == true){
+                    tvtitle.setText("Add Debt");
                 }
             }
         });
@@ -104,24 +118,38 @@ public class Add_data extends AppCompatActivity {
             }
 
             // Perform add operation
-            if (Expense) {
+            if (Expense == true && asset == false && debt == false) {
                 sqlHelperClass.add_expense(amount, reason);
                 tvtitle.setText("Expense Added!!");
                 add_amount.setText("");
                 add_reason.setText("");
-            } else {
+            } else if (Expense==false && asset == false && debt == false){
                 sqlHelperClass.add_income(amount, reason);
                 tvtitle.setText("Income Added!!");
+                add_amount.setText("");
+                add_reason.setText("");
+            } else if (asset == true && debt == false){
+                sqlHelperClass.add_assets(amount, reason);
+                tvtitle.setText("Asset Added!!");
+                add_amount.setText("");
+                add_reason.setText("");
+            } else if (asset == false && debt == true){
+                sqlHelperClass.add_debt(amount, reason);
+                tvtitle.setText("Debt Added!!");
                 add_amount.setText("");
                 add_reason.setText("");
             }
 
             // Reset title to "Add Expense" or "Add Income" after the submit operation
             new Handler().postDelayed(() -> {
-                if (Expense) {
+                if (Expense == true && asset == false && debt == false) {
                     tvtitle.setText("Add Expense");
-                } else {
+                } else if (Expense==false && asset == false && debt == false){
                     tvtitle.setText("Add Income");
+                }else if (asset == true && debt == false){
+                    tvtitle.setText("Add Asset");
+                } else if (asset == false && debt == true){
+                    tvtitle.setText("Add Debt");
                 }
             }, 1500);  // Delay to keep the success message visible for a short time
         });

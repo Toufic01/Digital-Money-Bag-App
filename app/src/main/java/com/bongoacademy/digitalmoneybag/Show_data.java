@@ -33,8 +33,9 @@ public class Show_data extends AppCompatActivity {
     HashMap<String, String> hashMap;
 
     public static boolean all_expense = true;
-
-
+    public static boolean all_income = true;
+    public static boolean all_asset = true;
+    public static boolean all_debt = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,6 @@ public class Show_data extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
 
         tvtitle = findViewById(R.id.tvtitle1);
         listView = findViewById(R.id.listview);
@@ -60,10 +60,8 @@ public class Show_data extends AppCompatActivity {
     private void loadData() {
         arrayList.clear();
 
-        if (all_expense == true) {
-
+        if (all_expense == true && all_income == false && all_asset == false && all_debt == false) {
             tvtitle.setText("Expense Details");
-
             Cursor cursor = sqlHelperClass.show_all_data_expense();
 
             if (cursor != null && cursor.getCount() > 0) {
@@ -89,7 +87,7 @@ public class Show_data extends AppCompatActivity {
                 tvtitle.setText("\nNO data found!!");
             }
 
-        } else {
+        } else if (all_income == true && all_expense == false && all_asset == false && all_debt == false) {
             tvtitle.setText("Income Details");
             Cursor cursor = sqlHelperClass.show_all_data_income();
 
@@ -118,12 +116,68 @@ public class Show_data extends AppCompatActivity {
                 tvtitle.setText("\nNO data found!!");
             }
 
+        } else if (all_income == false && all_expense == false && all_asset == true && all_debt == false) {
+            tvtitle.setText("Assets Details");
+            Cursor cursor = sqlHelperClass.show_all_data_asset();
+
+            if (cursor != null && cursor.getCount() > 0) {
+                arrayList = new ArrayList<>(); // Initialize only once
+
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(0);
+                    double amount = cursor.getDouble(1);
+                    String reason = cursor.getString(2);
+                    String time = cursor.getString(3);
+
+                    hashMap = new HashMap<>();
+                    hashMap.put("id", "" + id);
+                    hashMap.put("Amount", "" + amount);
+                    hashMap.put("Reason", "" + reason);
+                    hashMap.put("Time", "" + time);
+
+                    arrayList.add(hashMap);  // Add to the list
+                }
+
+                MyAdapter2 adapter = new MyAdapter2();
+                listView.setAdapter(adapter);
+                adapter.notifyDataSetChanged(); // Added here
+            } else {
+                tvtitle.setText("\nNO data found!!");
+            }
+
+        } else if (all_income == false && all_expense == false && all_asset == false && all_debt == true) {
+            tvtitle.setText("Debt Details");
+            Cursor cursor = sqlHelperClass.show_all_data_debt();
+
+            if (cursor != null && cursor.getCount() > 0) {
+                arrayList = new ArrayList<>(); // Initialize only once
+
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(0);
+                    double amount = cursor.getDouble(1);
+                    String reason = cursor.getString(2);
+                    String time = cursor.getString(3);
+
+                    hashMap = new HashMap<>();
+                    hashMap.put("id", "" + id);
+                    hashMap.put("Amount", "" + amount);
+                    hashMap.put("Reason", "" + reason);
+                    hashMap.put("Time", "" + time);
+
+                    arrayList.add(hashMap);  // Add to the list
+                }
+
+                MyAdapter3 adapter = new MyAdapter3();
+                listView.setAdapter(adapter);
+                adapter.notifyDataSetChanged(); // Added here
+            } else {
+                tvtitle.setText("\nNO data found!!");
+            }
         }
     }
 
-    public class MyAdapter extends BaseAdapter{
-
-
+    // Adapter for Expense
+    class MyAdapter extends BaseAdapter {
         @Override
         public int getCount() {
             return arrayList.size();
@@ -141,16 +195,13 @@ public class Show_data extends AppCompatActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup parent) {
-
             LayoutInflater inflater = getLayoutInflater();
-
-            View myview = inflater.inflate(R.layout.item, parent,false);
+            View myview = inflater.inflate(R.layout.item, parent, false);
 
             TextView tvReason = myview.findViewById(R.id.tv_reason);
             TextView tvAmount = myview.findViewById(R.id.tv_amount);
             TextView tvDelete = myview.findViewById(R.id.delete_item);
             TextView tvtime = myview.findViewById(R.id.time_expenses);
-
 
             hashMap = arrayList.get(i);
 
@@ -162,7 +213,6 @@ public class Show_data extends AppCompatActivity {
             tvReason.setText(reason);
             tvAmount.setText(amount);
             tvtime.setText(time);
-
 
             tvDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,18 +223,12 @@ public class Show_data extends AppCompatActivity {
                 }
             });
 
-
-
             return myview;
-
-
         }
     }
 
-
-    public class MyAdapter1 extends BaseAdapter{
-
-
+    // Adapter for Income
+    class MyAdapter1 extends BaseAdapter {
         @Override
         public int getCount() {
             return arrayList.size();
@@ -202,16 +246,13 @@ public class Show_data extends AppCompatActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup parent) {
-
             LayoutInflater inflater = getLayoutInflater();
-
-            View myview = inflater.inflate(R.layout.item_income, parent,false);
+            View myview = inflater.inflate(R.layout.item_income, parent, false);
 
             TextView tvReason = myview.findViewById(R.id.reason_of_income);
             TextView tvAmount = myview.findViewById(R.id.tv_income);
             TextView tvDelete = myview.findViewById(R.id.delete_income);
             TextView tvtime = myview.findViewById(R.id.time_income);
-
 
             hashMap = arrayList.get(i);
 
@@ -223,7 +264,6 @@ public class Show_data extends AppCompatActivity {
             tvReason.setText(reason);
             tvAmount.setText(amount);
             tvtime.setText(time);
-
 
             tvDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -238,4 +278,105 @@ public class Show_data extends AppCompatActivity {
         }
     }
 
+    // Adapter for Asset
+    class MyAdapter2 extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return arrayList.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup parent) {
+            LayoutInflater inflater = getLayoutInflater();
+            View myview = inflater.inflate(R.layout.item_income, parent, false);
+
+            TextView tvReason = myview.findViewById(R.id.reason_of_income);
+            TextView tvAmount = myview.findViewById(R.id.tv_income);
+            TextView tvDelete = myview.findViewById(R.id.delete_income);
+            TextView tvtime = myview.findViewById(R.id.time_income);
+
+            hashMap = arrayList.get(i);
+
+            String id = hashMap.get("id");
+            String amount = hashMap.get("Amount");
+            String reason = hashMap.get("Reason");
+            String time = hashMap.get("Time");
+
+            tvReason.setText(reason);
+            tvAmount.setText(amount);
+            tvtime.setText(time);
+
+            tvDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sqlHelperClass.delete_asset(id);
+                    loadData();
+                    notifyDataSetChanged();
+                }
+            });
+
+            return myview;
+        }
+    }
+
+    // Adapter for Debt
+    class MyAdapter3 extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return arrayList.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup parent) {
+            LayoutInflater inflater = getLayoutInflater();
+            View myview = inflater.inflate(R.layout.item_income, parent, false);
+
+            TextView tvReason = myview.findViewById(R.id.reason_of_income);
+            TextView tvAmount = myview.findViewById(R.id.tv_income);
+            TextView tvDelete = myview.findViewById(R.id.delete_income);
+            TextView tvtime = myview.findViewById(R.id.time_income);
+
+            hashMap = arrayList.get(i);
+
+            String id = hashMap.get("id");
+            String amount = hashMap.get("Amount");
+            String reason = hashMap.get("Reason");
+            String time = hashMap.get("Time");
+
+            tvReason.setText(reason);
+            tvAmount.setText(amount);
+            tvtime.setText(time);
+
+            tvDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sqlHelperClass.delete_debt(id);
+                    loadData();
+                    notifyDataSetChanged();
+                }
+            });
+
+            return myview;
+        }
+    }
 }
