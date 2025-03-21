@@ -16,7 +16,7 @@ public class SqlHelperClass extends SQLiteOpenHelper {
 
     // ✅ Step 1: Updated database version to 2 for schema change
     public SqlHelperClass(@Nullable Context context) {
-        super(context, "db_cost", null, 5);  // ← Updated version
+        super(context, "db_cost", null, 11);  // ← Updated version
     }
 
     @Override
@@ -25,6 +25,8 @@ public class SqlHelperClass extends SQLiteOpenHelper {
         // ✅ Step 2: Changed 'Time' column type to TEXT (Correct Format for Date/Time)
         db.execSQL("create table Expense (id INTEGER PRIMARY KEY AUTOINCREMENT, Amount DOUBLE, Reason TEXT, Time TEXT)");
         db.execSQL("create table Income (id INTEGER PRIMARY KEY AUTOINCREMENT, Amount DOUBLE, Reason TEXT, Time TEXT)");
+        db.execSQL("create table Asset (id INTEGER PRIMARY KEY AUTOINCREMENT, Amount DOUBLE, Reason TEXT, Time TEXT)");
+        db.execSQL("create table Debt (id INTEGER PRIMARY KEY AUTOINCREMENT, Amount DOUBLE, Reason TEXT, Time TEXT)");
     }
 
     @Override
@@ -113,4 +115,86 @@ public class SqlHelperClass extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("delete from Income where id = " + id); // Corrected delete logic
     }
+
+    public void add_assets(Double amount, String reason) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentvalues = new ContentValues();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy | hh:mm a", Locale.getDefault());
+        String currentDateTime = sdf.format(new Date());
+
+        contentvalues.put("Amount", amount);
+        contentvalues.put("Reason", reason);
+        contentvalues.put("Time", currentDateTime);
+
+        db.insert("Asset", null, contentvalues);
+    }
+
+    public double show_asset() {
+        double totalAsset = 0;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from Asset", null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+                double asset = cursor.getDouble(1);
+                totalAsset += asset;
+            }
+        }
+        return totalAsset;
+    }
+
+
+
+    public void add_debt(Double amount, String reason) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentvalues = new ContentValues();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy | hh:mm a", Locale.getDefault());
+        String currentDateTime = sdf.format(new Date());  // Correct date-time format
+
+        contentvalues.put("Amount", amount);    // Correct key: "Amount"
+        contentvalues.put("Reason", reason);    // Correct key: "Reason"
+        contentvalues.put("Time", currentDateTime); // Correct key: "Time"
+
+        db.insert("Debt", null, contentvalues);  // Correct insertion
+    }
+
+    public double show_debt() {
+        double totalDebt = 0;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from Debt", null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+                double debt = cursor.getDouble(1);
+                totalDebt += debt;
+            }
+        }
+        return totalDebt;
+    }
+
+    public Cursor show_all_data_asset() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select * from Asset", null);
+    }
+
+    public Cursor show_all_data_debt() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select * from Debt", null);
+    }
+
+    public void delete_asset(String id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from Asset where id = " + id); // Corrected delete logic
+    }
+
+    public void delete_debt(String id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from Debt where id = " + id); // Corrected delete logic
+    }
+
+
 }
